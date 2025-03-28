@@ -26,7 +26,7 @@
 
     <!-- Content -->
     <div class="content container my-5 py-3">
-        <h1 class="fs-4 border-bottom my-5 pb-2">Product List</h1>
+        <h1 class="fs-4 border-bottom my-5 pb-2">Product Details</h1>
 
         <!-- Spinner -->
         <div id="loading" class="text-center">
@@ -37,9 +37,8 @@
         <!-- /Spinner -->
 
         <!-- Product-list -->
-        <div id="product-list" class="row justify-content-center">  </div>
+        <div class="detail-content"> </div>
         <!-- Product-list -->
-        
     </div>
     <!-- /Content -->
 
@@ -83,10 +82,15 @@
     <!-- /Offcanvas -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-        const offcanvas_button= document.getElementById("offcanvas-button");
-        window.addCartItem = (id) => {
+            const content = document.querySelector('.detail-content');
+            const offcanvas_button= document.getElementById("offcanvas-button");
+            const url = new URLSearchParams(window.location.search);
+
+            window.addCartItem = (id) => {
+                console.log(id)
             fetch('https://fakestoreapi.com/products/'+id)
                 .then(response => response.json())
                 .then(data => {
@@ -107,72 +111,41 @@
                 })
                 .catch(e => console.log("error",e))
                 .finally(()=> offcanvas_button.click())
-        };
-
-        fetch('https://fakestoreapi.com/products')
-            .then(response => response.json())
-            .then(data => {
-                const list = document.querySelector('#product-list');
-                const loading = document.querySelector('#loading');
-                
-                loading.style.display = "none";
-                if(data.length==0) {
-                    list.innerHTML= `
-                    <div>
-                        <div class="alert alert-danger" role="alert">
-                            Ürün bulunamadı !
-                        </div>
-                    </div>
-                    `;
-                    return;
-                }
-                else if(data.length<6) {
-                    list.innerHTML= `
-                    <div>
-                        <div class="alert alert-warning" role="alert">
-                            Toplam ürün sayısı 6 dan az !
-                        </div>
-                    </div>
-                    `;
-                    return;
-                };
-
-                data.forEach(i => {
-                    const card = `
-                        <div class="card p-3 col-2 m-2 text-dark" style="width: 15rem; height: 24.5rem; ">
-                            <img src= "${i?.image}"
-                            class="card-img-top mx-auto" alt="${i?.image}">
-                            <div class="card-body">
-                                <h6 class="card-title">
-                                    ${i?.title.length>40? i?.title.slice(0,40)+'...': i?.title}
-                                </h6>
-                                <h6 class="fw-light">$ ${i?.price.toFixed(2)}</h6>
-                                <div class="row details">
-                                    <a id="addCartButton" 
-                                    onclick="addCartItem(${i?.id})"
-                                    class="col btn btn-sm btn-dark me-2">
-                                        <i class="fa-solid fs-7 fa-plus"></i>
-                                        <i class="fa-solid fa-bag-shopping"></i>
-                                    </a>
-                                    <a href="productdetails.html?id=${i.id}" 
-                                    class="col btn btn-sm btn-outline-dark">Detay</a>
+            };
+            
+            const changeUrl = () => {
+                fetch('https://fakestoreapi.com/products/'+url.get('id'))
+                    .then(response => response.json())
+                    .then(data => {
+                        loading.style.display = "none";
+                        content.innerHTML = `
+                            <img src="${data?.image}" class="rounded image border" width="100%" alt="resim">
+                            <div class="d-flex flex-column-reverse flex-md-row my-5">
+                                <div class="col-12 col-md-8 p-4">
+                                    <h5>${data?.title}</h5>
+                                    <p class="mt-4 text-secondary">
+                                        ${data?.description}
+                                    </p>
                                 </div>
-                            </div>
-                        </div>
-                    `;
-                    list.innerHTML += card;
-                })
-            })
-            .catch(e => {
-                list.innerHTML= `
-                    <div>
-                        <div class="alert alert-danger" role="alert">
-                            ${e}
-                        </div>
-                    </div>
-                    `;
-            });
+                                <div class="col-12 col-md-4">
+                                    <div class="border rounded bg-light p-4">
+                                        <h5>$ ${data?.price}</h5>
+                                        <div class="d-grid gap-2 mt-3">
+                                            <button class="btn btn-dark" type="button" onclick="addCartItem(${data?.id})">
+                                                <i class="fa-solid fa-bag-shopping me-2"></i>
+                                                Sepete Ekle
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+                        `;
+                    })
+                    .catch(e => console.log("error",e))
+            }
+            changeUrl();
+            window.addEventListener("popstate", changeUrl)
         })
-</script>
+    </script>
 </body>
 </html>

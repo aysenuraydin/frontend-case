@@ -1,46 +1,65 @@
+document.addEventListener("DOMContentLoaded", () => {
+    const offcanvas_button= document.getElementById("offcanvas-button");
+    const total_price= document.getElementById("total-price");
+    const table_body= document.getElementById("table-body");
 
+    window.removeCartItem = (id) => {
+        let cartItems = JSON.parse(localStorage.getItem("cart") || "[]") ;
+        cartItems = cartItems.filter(i => i.id != id)?? [];
+        localStorage.setItem("cart", JSON.stringify(cartItems));
+        
+        if(cartItems.length==0){
+            showAlertBar();
+            total_price.innerHTML = '$ 0';
+        }else {
+            getCartItem();
+        };
+    }
+    window.getCartItem = () => {
+        const cartItems = JSON.parse(localStorage.getItem("cart" )|| "[]");
 
-fetch('https://fakestoreapi.com/products')
-    .then(response => response.json())
-    .then(data => {
-        const list = document.querySelector('#product-list');
-
-        if(data.length==0) {
-            list.innerHTML= `
-            <div>
-                <div class="alert alert-danger" role="alert">
-                    Ürün bulunamadı !
-                </div>
-            </div>
-            `;
-            return;
-        }
-        else if(data.length<6) {
-            list.innerHTML= `
-            <div>
-                <div class="alert alert-danger" role="alert">
-                    Toplam ürün sayısı 6 dan az !
-                </div>
-            </div>
-            `;
-            return;
+        if(cartItems.length==0){
+            showAlertBar();
+        }else{
+            let list = "";
+            let totalPrice = 0;
+            cartItems.forEach(i=> {
+                list += `
+                    <tr>
+                        <td class="">
+                            <img class="card-img-top" src="${i.image}" alt="name">
+                        </td>
+                        <td class="align-middle">
+                            <div class="fw-bold">${i.title}</div>
+                            <div class="fs-6 fw-light">$ ${i.price.toFixed(2)}</div>
+                        </td>
+                        <td class="align-middle text-center"> ${i.amount} </td>
+                        <td class="align-middle">
+                            <button onclick="removeCartItem(${i.id})"
+                            type="button" class="btn btn-light">
+                                <i class="fa-solid fa-xmark fs-3"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                totalPrice += i.amount+ i.price
+                table_body.innerHTML= list;
+            })
+            let total = cartItems.reduce((total, item)=> total + item?.price*item?.amount, 0);
+            total_price.innerHTML = '$ ' + total.toFixed(2);
         };
 
-        data.forEach(i => {
-            const card = `
-            <div class="card p-3 col-2 m-2" style="width: 18rem;">
-                <img src= "${i?.image}" width="1rem"
-                class="card-img-top mx-auto" alt="resim">
-                <div class="card-body">
-                    <h6 class="card-title">${i?.title}</h6>
-                    <div class="row details">
-                        <h6 class="card-title col">$ ${i?.price}</h6>
-                        <a href="#" class="col btn btn-sm btn-primary">Detay</a>
+    }
+    window.showAlertBar = () => {
+        table_body.innerHTML = `
+            <tr>
+                <td colspan="4">
+                    <div class="alert alert-dark" role="alert">
+                        Sepetinizde henüz ürün yok!
                     </div>
-                </div>
-            </div>
-            `;
-            list.innerHTML += card;
-        })
-    });
-
+                </td>
+            </tr>
+        `;
+    }
+    offcanvas_button.addEventListener("click", getCartItem);
+} );
