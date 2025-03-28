@@ -22,7 +22,7 @@ nav{
 }
 .card-img-top{
     object-fit: contain !important;
-    height: 13rem !important;
+    height: 8rem !important;
 }
 .card-title{
     height:3.5rem !important;
@@ -64,4 +64,8 @@ nav{
 
 .ls {
     letter-spacing: 6px; /* Harfler arasına 2 piksel boşluk ekler */
+}
+.bottom-end-10{
+    right:15px;
+    bottom:15px;
 }
