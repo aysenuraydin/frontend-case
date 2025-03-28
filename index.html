@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Case</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://kit.fontawesome.com/b4b46d6b25.js" crossorigin="anonymous"></script>
+    <script src="scripts.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="fixed-top">
+        <nav class="navbar navbar-expand-lg bg-dark border border-dark text-light">
+            <div class="container">
+                <a class="navbar-brand ls" href="index.html">STORE</a>
+                <button class="btn btn-outline-secondary" type="button" id="offcanvas-button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </button>
+            </div>
+        </nav>
+        <div class="gradient"></div>
+    </div>
+    <!-- /Navbar -->
+
+    <!-- Content -->
+    <div class="content container my-5 py-3">
+        <h1 class="fs-4 border-bottom my-5 pb-2">Product List</h1>
+
+        <!-- Spinner -->
+        <div id="loading" class="text-center">
+            <div class="spinner-grow text-center border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <!-- /Spinner -->
+
+        <!-- Product-list -->
+        <div id="product-list" class="row justify-content-center">  </div>
+        <!-- Product-list -->
+        
+    </div>
+    <!-- /Content -->
+
+    <!-- Footer -->
+    <footer class="py-5 bg-dark text-white border ">
+        <div class="container text-center">
+            <div>All Rights Reserved. @2025</div>
+            <div>Ayşenur Aydın</div>
+        </div>
+    </footer>
+    <!-- /Footer -->
+
+    <!-- Offcanvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasExampleLabel">
+                <i class="fa-solid fa-bag-shopping me-2"></i>
+                Shopping Cart
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="col-4"></th>
+                        <th class="col-6">Name</th>
+                        <th class="col">Amount</th>
+                        <th class="col"></th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"> </tbody>
+            </table>
+            <div class="d-flex justify-content-between"> 
+                <div>Total:</div>
+                <div id="total-price">$ 0</div>
+            </div>
+        </div>
+        <div class="offcanvas-body"></div>
+    </div>
+    <!-- /Offcanvas -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+        const offcanvas_button= document.getElementById("offcanvas-button");
+        window.addCartItem = (id) => {
+            fetch('https://fakestoreapi.com/products/'+id)
+                .then(response => response.json())
+                .then(data => {
+                    const newData = {
+                        id:data?.id,
+                        title: data?.title.slice(0,30),
+                        price:data?.price,
+                        image:data?.image,
+                        amount:1
+                    }
+                    let cartItems = JSON.parse(localStorage.getItem("cart") || "[]") ;
+                    let item = cartItems?.find(i=>i.id==data.id);
+
+                    if(item) item.amount+=1;
+                    else cartItems.push(newData);
+
+                    localStorage.setItem("cart", JSON.stringify(cartItems));
+                })
+                .catch(e => console.log("error",e))
+                .finally(()=> offcanvas_button.click())
+        };
+
+        fetch('https://fakestoreapi.com/products')
+            .then(response => response.json())
+            .then(data => {
+                const list = document.querySelector('#product-list');
+                const loading = document.querySelector('#loading');
+                
+                loading.style.display = "none";
+                if(data.length==0) {
+                    list.innerHTML= `
+                    <div>
+                        <div class="alert alert-danger" role="alert">
+                            Ürün bulunamadı !
+                        </div>
+                    </div>
+                    `;
+                    return;
+                }
+                else if(data.length<6) {
+                    list.innerHTML= `
+                    <div>
+                        <div class="alert alert-warning" role="alert">
+                            Toplam ürün sayısı 6 dan az !
+                        </div>
+                    </div>
+                    `;
+                    return;
+                };
+
+                data.forEach(i => {
+                    const card = `
+                        <div class="card p-3 col-2 m-2 text-dark" style="width: 15rem; height: 24.5rem; ">
+                            <img src= "${i?.image}"
+                            class="card-img-top mx-auto" alt="${i?.image}">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    ${i?.title.length>40? i?.title.slice(0,40)+'...': i?.title}
+                                </h6>
+                                <h6 class="fw-light">$ ${i?.price.toFixed(2)}</h6>
+                                <div class="row details">
+                                    <a id="addCartButton" 
+                                    onclick="addCartItem(${i?.id})"
+                                    class="col btn btn-sm btn-dark me-2">
+                                        <i class="fa-solid fs-7 fa-plus"></i>
+                                        <i class="fa-solid fa-bag-shopping"></i>
+                                    </a>
+                                    <a href="productdetails.html?id=${i.id}" 
+                                    class="col btn btn-sm btn-outline-dark">Detay</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    list.innerHTML += card;
+                })
+            })
+            .catch(e => {
+                list.innerHTML= `
+                    <div>
+                        <div class="alert alert-danger" role="alert">
+                            ${e}
+                        </div>
+                    </div>
+                    `;
+            });
+        })
+</script>
+</body>
+</html>
