@@ -11,11 +11,11 @@ HTML, CSS, Bootstrap ve JavaScript kullanılarak geliştirilmiş bir ön yüz uy
 
 ## Özellikler
 
-    -	Alışveriş sepeti (Ürün ekleme, silme ve miktar güncelleme).
-    -	Ürünlerin listelenmesi
-    -   Ürün detaylarının görüntülenmesi.
-    -	Kullanıcı dostu ve duyarlı tasarım.
-    -	Ürünlerin fiyatları ve toplam hesaplamalar.
+        -	Alışveriş sepeti (Ürün ekleme, silme ve miktar güncelleme).
+        -	Ürünlerin listelenmesi
+        -   Ürün detaylarının görüntülenmesi.
+        -	Kullanıcı dostu ve duyarlı tasarım.
+        -	Ürünlerin fiyatları ve toplam hesaplamalar.
 
 1. **`Depoyu Klonlayın`**
 
